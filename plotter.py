@@ -2457,7 +2457,7 @@ class BSDOSPlotter:
 
         # set up bs and dos plot
         if dos_show_y_axis:
-            gs = GridSpec(1, 2, width_ratios=[2, 1], wspace=1.4) if dos else GridSpec(1, 1)
+            gs = GridSpec(1, 2, width_ratios=[2, 1], wspace=0.4) if dos else GridSpec(1, 1)
         else:
             gs = GridSpec(1, 2, width_ratios=[2, 1]) if dos else GridSpec(1, 1)
 
@@ -2497,7 +2497,8 @@ class BSDOSPlotter:
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle="dotted", linewidth=1)
         if dos:
             dos_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))
-            dos_ax.set_yticklabels([])
+            if dos_show_y_axis==False: dos_ax.set_yticklabels([])
+            else: dos_ax.set_yticklabels(np.arange(emin, emax + 1e-5, self.egrid_interval), size=self.tick_fontsize)
             #dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle="dotted", linewidth=1)
 
         # renormalize the band energy to the Fermi level
