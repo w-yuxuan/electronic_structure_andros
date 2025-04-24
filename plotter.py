@@ -2258,7 +2258,7 @@ class BSDOSPlotter:
         cb_energy_range: float = 4,
         fixed_cb_energy: bool = False,
         egrid_interval: float = 1,
-        font: str = "Ariel",
+        font: str = "DejaVu Sans",
         axis_fontsize: float = 25,
         tick_fontsize: float = 25,
         legend_fontsize: float = 15,
@@ -2266,7 +2266,8 @@ class BSDOSPlotter:
         dos_legend: str = "best",
         rgb_legend: bool = True,
         fig_size: tuple[float, float] = (11, 8.5),
-        dos_interval: float = 5
+        dos_interval: float = 5,
+        dos_show_y_axis: bool = True
     ) -> None:
         """
         Instantiate plotter settings.
@@ -2288,6 +2289,7 @@ class BSDOSPlotter:
             rgb_legend (bool): (T/F) whether to draw RGB triangle/bar for element proj.
             fig_size(tuple): dimensions of figure size (width, height)
             dos_interval: dos ticks interval in [states/ev]
+            dos_show_y_axis(bool):(T/F) whether to draw energy axis for dos
         """
         self.bs_projection = bs_projection
         self.dos_projection = dos_projection
@@ -2307,6 +2309,7 @@ class BSDOSPlotter:
         self.customize_color_order = customize_color_order
         self.sigma = sigma
         self.dos_interval= dos_interval
+        self.dos_show_y_axis = dos_show_y_axis
 
 #%% old
     # def __init__(
@@ -2379,6 +2382,7 @@ class BSDOSPlotter:
         from matplotlib.gridspec import GridSpec
 
         # make sure the user-specified band structure projection is valid
+        dos_show_y_axis = self.dos_show_y_axis # without this you get NameError: name 'dos_show_y_axis' is not defined
         bs_projection = self.bs_projection
         if dos:
             elements = [e.symbol for e in dos.structure.composition.elements]
@@ -2452,7 +2456,10 @@ class BSDOSPlotter:
             x_distances_list.append(x_distances)
 
         # set up bs and dos plot
-        gs = GridSpec(1, 2, width_ratios=[2, 1]) if dos else GridSpec(1, 1)
+        if dos_show_y_axis:
+            gs = GridSpec(1, 2, width_ratios=[2, 1], wspace=1.4) if dos else GridSpec(1, 1)
+        else:
+            gs = GridSpec(1, 2, width_ratios=[2, 1]) if dos else GridSpec(1, 1)
 
         fig = mplt.figure(figsize=self.fig_size)
         fig.patch.set_facecolor("white")
@@ -2625,7 +2632,9 @@ class BSDOSPlotter:
 
             dos_ax.hlines(y=0, xmin=dos_xmin, xmax=dos_xmax, color="k", lw=2)
             dos_ax.set_xlabel("DOS \n(states / eV)",fontsize=self.axis_fontsize, family=self.font)
-
+            if dos_show_y_axis:
+                dos_ax.set_ylabel("$E-E_F$ / eV", fontsize=self.axis_fontsize, family=self.font)
+                dos_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))
         # add legend for band structure
         if self.bs_legend and not rgb_legend:
             handles = []
