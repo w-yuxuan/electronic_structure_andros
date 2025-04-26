@@ -17,6 +17,7 @@ import numpy as np
 import scipy.interpolate as scint
 from monty.dev import requires
 from monty.json import jsanitize
+import pandas as pd  # make sure this is imported at the top
 
 try:
     from mayavi import mlab
@@ -2591,6 +2592,14 @@ class BSDOSPlotter:
                                 color=colors[idx],
                                 label=label,
                             )
+
+                            # Export to CSV
+                            df = pd.DataFrame({
+                                "Energy (eV)": dos_energies,
+                                f"DOS ({el})": dos_densities,
+                            })
+                            df.to_csv(f"{el}_dos.csv", index=False)
+
                             original=0
                             for idx,flagx in enumerate(dos_densities):
                                 if flagx!=0:
