@@ -2539,9 +2539,6 @@ class BSDOSPlotter:
                         current_pos += len(x_distances)
 
         if dos:
-            #added to save CSV 1. Add this BEFORE your element loop
-            export_data = {"Energy (eV)": dos_energies} #save csv
-
             # Plot the DOS and projected DOS
             for spin in (Spin.up, Spin.down):
                 if spin in dos.densities:
@@ -2580,7 +2577,8 @@ class BSDOSPlotter:
                         el_dos = dos.get_element_dos()
                         #elements_customize = elements[0]
 
-
+                        #added to save CSV 1. Add this BEFORE your element loop
+                        export_data = {"Energy (eV)": dos_energies} #save csv
                         for idx, el in enumerate([elements[1],elements[2]]): #HEO 5element
 
                         #for idx, el in enumerate([elements[0],elements[3],elements[1],elements[2],elements[4]]): #HEO 5element
@@ -2589,7 +2587,7 @@ class BSDOSPlotter:
                         #for idx, el in enumerate([elements[0]]): # if you plot 1 element only
                             #print ("%s" % elements_customize)
                             #dos_densities = el_dos[Element(el)].densities[spin] * int(spin) #changed to line below to get gaussian smeared dos
-                            dos_densities = el_dos[Element(el)].get_smeared_densities(self.sigma)[spin]
+                            dos_densities = el_dos[Element(el)].get_smeared_densities(self.sigma)[spin] * int (spin)
                             label = el if spin == Spin.up else None
                             dos_ax.plot(
                                 dos_densities,
@@ -2598,15 +2596,9 @@ class BSDOSPlotter:
                                 label=label,
                             )
                             # 3. ADD this inside the loop:
-                            if spin == Spin.up:
-                                export_data[f"DOS_spinChannel1_{el}_[States/eV]"] = dos_densities
-                            elif spin == Spin.down:
-                                export_data[f"DOS_spinChannel2_{el}_[States/eV]"] = dos_densities
-
-                            # 4. After both Spin.up and Spin.down loops are finished:
-                        if spin == Spin.down:
-                            df_export = pd.DataFrame(export_data)
-                            df_export.to_csv("combined_dos.csv", index=False)
+                            # Add DOS data for current spin and element
+                            spin_label = "up" if spin == Spin.up else "down"
+                            export_data[f"DOS_{spin_label}_{el}_[States/eV]"] = dos_densities
 
                             original=0
                             for idx,flagx in enumerate(dos_densities):
@@ -2614,6 +2606,10 @@ class BSDOSPlotter:
                                     original=original+1
                             print(dos_densities[1],dos_densities[2])
                             print(original)
+                    # 4. After both Spin.up and Spin.down loops are finished:
+                    if spin == Spin.down:
+                        df_export = pd.DataFrame(export_data)
+                        df_export.to_csv("combined_dos.csv", index=False)
                     #%%
 
                     elif self.dos_projection.lower() == "orbitals":
