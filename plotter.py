@@ -2589,7 +2589,7 @@ class BSDOSPlotter:
                         #for idx, el in enumerate([elements[0]]): # if you plot 1 element only
                             #print ("%s" % elements_customize)
                             #dos_densities = el_dos[Element(el)].densities[spin] * int(spin) #changed to line below to get gaussian smeared dos
-                            dos_densities = el_dos[Element(el)].get_smeared_densities(self.sigma)[spin]
+                            dos_densities = el_dos[Element(el)].get_smeared_densities(self.sigma)[spin]*int(spin)
                             label = el if spin == Spin.up else None
                             dos_ax.plot(
                                 dos_densities,
@@ -2612,8 +2612,8 @@ class BSDOSPlotter:
                             for idx,flagx in enumerate(dos_densities):
                                 if flagx!=0:
                                     original=original+1
-                            print(dos_densities[1],dos_densities[2])
-                            print(original)
+                            #print(dos_densities[1],dos_densities[2])
+                            #print(original)
                     #%%
 
                     elif self.dos_projection.lower() == "orbitals":
